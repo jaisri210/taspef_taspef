@@ -1,6 +1,7 @@
 // server/src/controllers/postController.js
 import Post from "../models/Post.js";
 import slugify from "slugify";
+import { toUploadUrl } from "../middleware/upload.js";
 
 export const listPosts = async (req, res, next) => {
   try {
@@ -24,13 +25,13 @@ export const getPost = async (req, res, next) => {
 export const createPost = async (req, res, next) => {
   try {
     const { title, excerpt, content } = req.body;
-    const image = req.file ? req.file.path.replace(/\\/g, "/") : undefined;
     const post = await Post.create({
       title,
       excerpt,
       content,
-      image,
+      image: toUploadUrl(req.file),
       slug: title ? slugify(title, { lower: true }) : undefined,
+      createdBy: req.user?._id,
     });
     res.status(201).json(post);
   } catch (err) {
@@ -43,7 +44,7 @@ export const updatePost = async (req, res, next) => {
     const p = await Post.findById(req.params.id);
     if (!p) return res.status(404).json({ message: "Post not found" });
     Object.assign(p, req.body);
-    if (req.file) p.image = req.file.path.replace(/\\/g, "/");
+    if (req.file) p.image = toUploadUrl(req.file);
     await p.save();
     res.json(p);
   } catch (err) {

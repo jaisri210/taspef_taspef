@@ -1,4 +1,13 @@
 import mongoose from "mongoose";
+import dns from "dns";
+
+// mongodb+srv:// needs a DNS SRV lookup before it can connect at all. On
+// some networks the OS/DHCP-assigned resolver serves plain A/AAAA fine but
+// flakes or refuses SRV queries specifically (seen as ECONNREFUSED here even
+// though the connection string and credentials are correct) — pointing
+// Node's resolver at public DNS sidesteps that instead of failing the whole
+// process on a local network hiccup.
+dns.setServers(["8.8.8.8", "1.1.1.1", ...dns.getServers()]);
 
 /**
  * Connect to MongoDB database

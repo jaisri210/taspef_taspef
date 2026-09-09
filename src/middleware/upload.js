@@ -79,4 +79,11 @@ export const handleMulterError = (err, req, res, next) => {
   next();
 };
 
+// Builds the public URL path for an uploaded file. Deliberately ignores
+// req.file.path (an absolute filesystem path) — it would leak server
+// directory structure and doesn't resolve to anything over HTTP. The
+// static mount is always at "/uploads" regardless of UPLOAD_PATH's actual
+// value on disk, so that's what every stored fileUrl should start with.
+export const toUploadUrl = (file) => (file ? `uploads/${file.filename}` : undefined);
+
 export default upload;

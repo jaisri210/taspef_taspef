@@ -1,5 +1,6 @@
 // server/src/controllers/memberController.js
 import Member from "../models/Member.js";
+import { toUploadUrl } from "../middleware/upload.js";
 
 export const listMembers = async (req, res, next) => {
   try {
@@ -22,12 +23,11 @@ export const getMember = async (req, res, next) => {
 
 export const createMember = async (req, res, next) => {
   try {
-    const photo = req.file ? req.file.path.replace(/\\/g, "/") : undefined;
     const m = await Member.create({
       name: req.body.name,
       designation: req.body.designation,
       bio: req.body.bio,
-      photo,
+      photo: toUploadUrl(req.file),
       contact: req.body.contact,
     });
     res.status(201).json(m);
@@ -41,7 +41,7 @@ export const updateMember = async (req, res, next) => {
     const m = await Member.findById(req.params.id);
     if (!m) return res.status(404).json({ message: "Member not found" });
     Object.assign(m, req.body);
-    if (req.file) m.photo = req.file.path.replace(/\\/g, "/");
+    if (req.file) m.photo = toUploadUrl(req.file);
     await m.save();
     res.json(m);
   } catch (err) {

@@ -15,9 +15,16 @@ import postsRoutes from "./routes/posts.js";
 import eventsRoutes from "./routes/events.js";
 import reportsRoutes from "./routes/reports.js";
 import membersRoutes from "./routes/members.js";
+import filesRoutes from "./routes/files.js";
 
-// ✅ NEW — E-Magazine route
+// E-Magazine route
 import emagRoutes from "./routes/emagazines.js";
+
+// Admin panel routes
+import galleryRoutes from "./routes/gallery.js";
+import registerMembersRoutes from "./routes/registerMembers.js";
+import usersRoutes from "./routes/users.js";
+import dashboardRoutes from "./routes/dashboard.js";
 
 dotenv.config();
 
@@ -62,66 +69,23 @@ app.use(
   ),
 );
 
-// ✅ Mount all API routes
+// Mount all API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postsRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/agm-reports", reportsRoutes);
 app.use("/api/members", membersRoutes);
-
-// ✅ NEW — Mount E-Magazine route
 app.use("/api/emagazines", emagRoutes);
+app.use("/api/files", filesRoutes);
+
+// Admin panel routes
+app.use("/api/gallery", galleryRoutes);
+app.use("/api/register-members", registerMembersRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => res.json({ ok: true, ts: Date.now() }));
-
-// Temporary dev samples for AGM Reports (can delete later)
-app.get("/api/agm-reports", (req, res) => {
-  res.json([
-    {
-      _id: "dev-1",
-      title: "Annual General Meeting 2024 (Dev Sample)",
-      date: "September 24, 2024",
-      fileUrl: null,
-      originalName: null,
-    },
-    {
-      _id: "dev-2",
-      title: "Annual General Meeting 2023 (Dev Sample)",
-      date: "September 18, 2023",
-      fileUrl: null,
-      originalName: null,
-    },
-  ]);
-});
-
-app.get("/api/agm-reports/:id", (req, res) => {
-  const { id } = req.params;
-  const reports = {
-    "dev-1": {
-      _id: "dev-1",
-      title: "Annual General Meeting 2024 (Dev Sample)",
-      date: "September 24, 2024",
-      fileUrl: null,
-      originalName: null,
-    },
-    "dev-2": {
-      _id: "dev-2",
-      title: "Annual General Meeting 2023 (Dev Sample)",
-      date: "September 18, 2023",
-      fileUrl: null,
-      originalName: null,
-    },
-  };
-
-  const report = reports[id];
-  if (!report)
-    return res
-      .status(404)
-      .json({ success: false, message: "Report not found" });
-
-  res.json(report);
-});
 
 // 404 handler
 app.use((req, res) => {

@@ -1,5 +1,6 @@
 // server/src/controllers/eventController.js
 import Event from "../models/Event.js";
+import { toUploadUrl } from "../middleware/upload.js";
 
 export const listEvents = async (req, res, next) => {
   try {
@@ -22,14 +23,14 @@ export const getEvent = async (req, res, next) => {
 
 export const createEvent = async (req, res, next) => {
   try {
-    const image = req.file ? req.file.path.replace(/\\/g, "/") : undefined;
     const ev = await Event.create({
       title: req.body.title,
       description: req.body.description,
       startAt: req.body.startAt ? new Date(req.body.startAt) : undefined,
       endAt: req.body.endAt ? new Date(req.body.endAt) : undefined,
       location: req.body.location,
-      image,
+      image: toUploadUrl(req.file),
+      createdBy: req.user?._id,
     });
     res.status(201).json(ev);
   } catch (err) {
@@ -42,7 +43,7 @@ export const updateEvent = async (req, res, next) => {
     const e = await Event.findById(req.params.id);
     if (!e) return res.status(404).json({ message: "Event not found" });
     Object.assign(e, req.body);
-    if (req.file) e.image = req.file.path.replace(/\\/g, "/");
+    if (req.file) e.image = toUploadUrl(req.file);
     await e.save();
     res.json(e);
   } catch (err) {

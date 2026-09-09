@@ -8,15 +8,16 @@ import {
   getFileStats,
 } from '../controllers/fileController.js'
 import upload, { handleMulterError } from '../middleware/upload.js'
+import { protect, adminOnly } from '../middleware/auth.js'
 
 const router = express.Router()
 
 /**
  * @route   POST /api/files
  * @desc    Upload a new file
- * @access  Public (add authentication later)
+ * @access  Admin
  */
-router.post('/', upload.single('file'), handleMulterError, uploadFile)
+router.post('/', protect, adminOnly, upload.single('file'), handleMulterError, uploadFile)
 
 /**
  * @route   GET /api/files
@@ -32,9 +33,9 @@ router.get('/', getFiles)
 /**
  * @route   GET /api/files/stats
  * @desc    Get file statistics
- * @access  Public (add authentication later)
+ * @access  Admin
  */
-router.get('/stats', getFileStats)
+router.get('/stats', protect, adminOnly, getFileStats)
 
 /**
  * @route   GET /api/files/:id
@@ -53,9 +54,9 @@ router.get('/:id/download', downloadFile)
 /**
  * @route   DELETE /api/files/:id
  * @desc    Delete a file
- * @access  Public (add authentication later)
+ * @access  Admin
  */
-router.delete('/:id', deleteFile)
+router.delete('/:id', protect, adminOnly, deleteFile)
 
 export default router
 

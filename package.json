@@ -7,6 +7,11 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "seed:admin": "node src/scripts/seedAdmin.js",
+    "seed:members": "node src/scripts/seedRegisterMembers.js",
+    "seed:reports": "node src/scripts/seedReports.js",
+    "seed:emagazines": "node src/scripts/seedEMagazines.js",
+    "seed:gallery": "node src/scripts/seedGallery.js",
     "test": "echo \"Tests not yet implemented\" && exit 0"
   },
   "keywords": [

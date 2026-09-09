@@ -8,6 +8,7 @@ const postSchema = new mongoose.Schema({
   content: String,
   image: String,
   published: { type: Boolean, default: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 });
 
