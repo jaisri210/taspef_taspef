@@ -4,6 +4,7 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { withMirror } from "../utils/uploadStore.js";
 
 const uploadDir = process.env.UPLOAD_PATH || "uploads";
 const uploadsPath = path.resolve(process.cwd(), uploadDir);
@@ -43,6 +44,6 @@ const limits = {
   fileSize: parseInt(process.env.IMAGE_MAX_FILE_SIZE || "5242880", 10), // default 5MB
 };
 
-const uploadImage = multer({ storage, fileFilter, limits });
+const uploadImage = withMirror(multer({ storage, fileFilter, limits }));
 
 export default uploadImage;

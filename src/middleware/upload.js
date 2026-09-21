@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { withMirror } from "../utils/uploadStore.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,7 +50,7 @@ const limits = {
   fileSize: parseInt(process.env.MAX_FILE_SIZE || "10485760", 10), // default 10MB
 };
 
-const upload = multer({ storage, fileFilter, limits });
+const upload = withMirror(multer({ storage, fileFilter, limits }));
 
 // Multer error handler middleware (use after upload in route)
 export const handleMulterError = (err, req, res, next) => {

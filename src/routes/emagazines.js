@@ -12,6 +12,7 @@ import {
 } from "../controllers/emagazineController.js";
 import { handleMulterError } from "../middleware/upload.js";
 import { protect, adminOnly } from "../middleware/auth.js";
+import { withMirror } from "../utils/uploadStore.js";
 const router = express.Router();
 
 // An issue submit carries a PDF (`file`) and an optional cover image
@@ -39,7 +40,7 @@ const allowedImageTypes = (
   process.env.ALLOWED_IMAGE_TYPES || "image/jpeg,image/png,image/jpg,image/webp"
 ).split(",");
 
-const emagUpload = multer({
+const emagUpload = withMirror(multer({
   storage,
   limits: { fileSize: parseInt(process.env.MAX_FILE_SIZE || "10485760", 10) },
   fileFilter: (req, file, cb) => {
@@ -47,7 +48,7 @@ const emagUpload = multer({
     if (allowed.includes(file.mimetype)) return cb(null, true);
     return cb(new Error(`Invalid file type for "${file.fieldname}". Allowed: ${allowed.join(", ")}`), false);
   },
-}).fields([
+})).fields([
   { name: "file", maxCount: 1 },
   { name: "cover", maxCount: 1 },
 ]);

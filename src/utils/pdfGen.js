@@ -2,6 +2,7 @@
 import fs from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
+import { mirrorFileToStore } from "./uploadStore.js";
 
 const uploadsDir = path.join(
   process.cwd(),
@@ -41,6 +42,8 @@ export async function htmlToPdfFile(
       printBackground: true,
       margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" },
     });
+
+    await mirrorFileToStore(outPath, filename, "application/pdf");
 
     return `uploads/${filename}`;
   } finally {

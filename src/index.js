@@ -8,6 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import connectDB from "./config/db.js";
+import { ensureOnDisk } from "./utils/uploadStore.js";
 
 // Routes (existing)
 import authRoutes from "./routes/auth.js";
@@ -85,6 +86,17 @@ app.use("/uploads", (req, res, next) => {
     "Content-Security-Policy",
     `frame-ancestors 'self' ${clientOrigins.join(" ")}`,
   );
+  next();
+});
+// Restore a file from the Mongo backup if the disk was wiped by a redeploy.
+app.use("/uploads", async (req, res, next) => {
+  if (req.method !== "GET" && req.method !== "HEAD") return next();
+  try {
+    const name = decodeURIComponent(req.path.replace(/^\/+/, ""));
+    if (name) await ensureOnDisk(name);
+  } catch (err) {
+    console.error("Upload restore failed:", err.message);
+  }
   next();
 });
 app.use(

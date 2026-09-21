@@ -1,5 +1,6 @@
 import File from '../models/File.js'
 import fs from 'fs'
+import { ensureOnDisk } from '../utils/uploadStore.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -186,8 +187,9 @@ export const downloadFile = async (req, res) => {
       })
     }
 
-    // Check if file exists on disk
-    if (!fs.existsSync(file.path)) {
+    // Check if file exists on disk (restoring it from the Mongo backup if a
+    // redeploy wiped the disk)
+    if (!(await ensureOnDisk(file.filename))) {
       return res.status(404).json({
         success: false,
         error: {
