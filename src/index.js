@@ -52,16 +52,41 @@ app.use(
   }),
 );
 
-const clientOrigins = (process.env.CLIENT_URL || "http://localhost:5174").split(
-  ",",
+const clientOrigins = (process.env.CLIENT_URL || "http://localhost:5174")
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || clientOrigins.includes(origin.replace(/\/+$/, ""))) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
+    credentials: true,
+  }),
 );
-app.use(cors({ origin: clientOrigins, credentials: true }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === "development" ? "dev" : "combined"));
 
 // ✅ Serve uploaded PDFs & images publicly (used by E-Magazines)
+// The frontend embeds these in <iframe>s from a different origin, so helmet's
+// default X-Frame-Options / frame-ancestors 'self' would block them. Allow
+// framing by the client origins only. The site-wide CSP is also dropped here
+// since its object-src 'none' can stop Chrome's built-in PDF viewer.
+app.use("/uploads", (req, res, next) => {
+  res.removeHeader("X-Frame-Options");
+  res.setHeader(
+    "Content-Security-Policy",
+    `frame-ancestors 'self' ${clientOrigins.join(" ")}`,
+  );
+  next();
+});
 app.use(
   "/uploads",
   express.static(
